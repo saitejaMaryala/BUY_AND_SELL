@@ -1,0 +1,25 @@
+/* styles.css */
+.logout-button {
+    background-color: #007bff; /* Blue background */
+    color: white;             /* White text */
+    border: none;             /* No border */
+    border-radius: 5px;       /* Rounded corners */
+    padding: 10px 20px;       /* Padding for a comfortable size */
+    font-size: 16px;          /* Text size */
+    cursor: pointer;          /* Pointer cursor on hover */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
+  }
+  
+  .logout-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  .logout-button:active {
+    transform: scale(0.95); /* Slight scale down on click */
+  }
+  
+  .logout-button:focus {
+    outline: none; /* Remove default outline */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Custom focus ring */
+  }
+  

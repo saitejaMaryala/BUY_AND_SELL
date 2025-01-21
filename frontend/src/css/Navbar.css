@@ -1,0 +1,55 @@
+/* Navbar Container */
+/* styles.css */
+.navbar {
+    position: fixed; /* Fixes the navbar to the top */
+    top: 0; /* Aligns it at the top */
+    left: 0; /* Aligns it to the left */
+    width: 100%; /* Makes the navbar span the full width of the viewport */
+    background-color: #333; /* Background color */
+    color: white; /* Text color */
+    padding: 10px 20px; /* Padding for spacing */
+    display: flex; /* Flex layout for aligning items */
+    justify-content: space-around; /* Distribute items with space in between */
+    align-items: center; /* Center align the items vertically */
+    z-index: 1000; /* Ensures it stays above other elements */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Optional shadow for better appearance */
+  }
+  
+  /* Logo Styling */
+  .nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  /* Navigation Menu */
+  .nav-menu {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-menu li {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Link styling */
+  .nav-link {
+    text-decoration: none;
+    color: #856767;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    background-color: #f5f5f5;
+    color: #000;
+  }
+  

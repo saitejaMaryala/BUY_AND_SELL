@@ -1,0 +1,101 @@
+/* Profilepage.css */
+  
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f7f9fc;
+    color: #333;
+  }
+  .main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .card {
+    position: relative; /* Ensure the card acts as a reference for the absolute positioning */
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 700px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .edit {
+    position: absolute; /* Position relative to the card */
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    cursor: pointer; /* Add a pointer cursor for clickable elements */
+    font-size: 1.5rem; /* Adjust icon size */
+    color: #4a90e2; /* Icon color */
+  }
+  
+  .edit:hover {
+    color: #2e7cbf; /* Optional: Change color on hover */
+  }
+  
+  .card-body {
+    margin-top: 15px;
+  }
+  
+  .card h2 {
+    color: #4a90e2;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #4a90e2;
+    display: inline-block;
+    padding-bottom: 5px;
+  }
+  
+  .card table {
+    width: 100%;
+    margin-top: 15px;
+    border-collapse: collapse;
+  }
+  
+  .card table td {
+    padding: 8px 10px;
+    font-size: 1rem;
+    text-align: left;
+  }
+  
+  .card table td:first-child {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .card table td:nth-child(2) {
+    text-align: center;
+    color: #888;
+  }
+  
+  .card table td:last-child {
+    text-align: left;
+    color: #333;
+  }
+  
+  .card i {
+    display: block;
+    font-size: 2.5rem;
+    color: #4a90e2;
+    margin-bottom: 15px;
+  }
+  
+  @media (max-width: 768px) {
+    .main {
+      padding: 10px;
+    }
+  
+    .card {
+      width: 90%;
+    }
+  }
+  
