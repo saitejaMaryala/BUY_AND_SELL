@@ -22,7 +22,7 @@ const Profilepage = () => {
   useEffect(() => {
     // Fetch user data when the component mounts
     fetchUserData();
-  }, []); 
+  }, []);
 
   return (
     <div className='outside'>

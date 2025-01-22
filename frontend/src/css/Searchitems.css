@@ -1,40 +1,137 @@
-body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;   
+/* Navbar styling */
+.spage {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: #343a40; /* Dark navbar */
+  color: #fff; /* White text */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  position: sticky;
+  top: 12%;
+  z-index: 1000;
+  height: 100%;
+}
+
+/* Search bar container with centered alignment */
+.search-bar {
+  display: flex;
+  justify-content:center;
+  /* align-items: center; */
+  /* flex: 1; */
+  margin-right: 20px; /* Gap between search bar and upload button */
+}
+
+.search-bar input {
+  width: 350px;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.category-container {
+  margin: 1rem 0;
+  left: 10%;
+}
+
+.category-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.checkbox-item input[type="checkbox"] {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.checkbox-item label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+
+.search-bar input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+.search-bar button {
+  background-color: #007bffe1;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: 3px; /* Space between input and button */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Adjusted upload button styling */
+.spage button {
+  padding: 8px 15px; /* Smaller size for upload button */
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  white-space: nowrap; /* Prevent text wrapping */
+  width: 13%;
+}
+
+.spage button:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+/* Add padding to the body or main content */
+.search-items-container {
+  padding-top: 86px; /* Ensure enough space below the navbar */
+  margin-top: 1px;  /* Space below the search bar */
+}
+
+/* Search bar and upload button container styling */
+.search-upload-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px; /* Space below the search-upload-container */
+}
+
+/* Item card container styling */
+.item-card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 16px;
+  margin-top: 20px; /* Space between item cards and other elements */
+}
+
+
+/* For responsiveness */
+@media (max-width: 768px) {
+  .search-bar input {
+      width: 250px;
   }
-  
-  .spage {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background-color: #f4f4f4;
-    position: fixed; /* Keeps it fixed relative to the viewport */
-    top: 13%; /* Position it 13% from the top */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Offset by half its width for proper centering */
-    width: 80%; /* Adjust as needed for the container's width */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional for a subtle shadow */
-    border-radius: 8px; /* Optional for rounded corners */
-  }
-  
-  
-  .spage h2 {
-    margin: 0;
-  }
-  
+
   .spage button {
-    padding: 10px 20px;
-    background-color: #007bff; /* Button color */
-    color: #fff; /* Text color */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+      padding: 6px 12px;
+      font-size: 12px;
   }
-  
-  .spage button:hover {
-    background-color: #0056b3; /* Darker shade on hover */
-  }
-  
+}

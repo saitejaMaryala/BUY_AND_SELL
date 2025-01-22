@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { RxCross2 } from "react-icons/rx";
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import "../css/Edituser.css"
 
@@ -30,11 +31,13 @@ const Edituser = ({
       .then(res=>{
         if(res.status === 200){
           console.log("updateed")
+          toast.success("Updated!!");
           onclose();
           fetchUserData();
         }
       }).catch(err=>{
         console.log("Not updated error!!",err);
+        toast.error("Not Updated ERROR!!");
       });
   }
   return (

@@ -4,6 +4,8 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 const userModel = require("./model/user");
+const productModel = require("./model/product");
+const cartProductModel = require("./model/cartProducts");
 // const session = require("express-session");
 const mongostore = require("connect-mongo");
 const jwt = require("jsonwebtoken");
@@ -43,15 +45,16 @@ function authenticateToken(req, res, next) {
     jwt.verify(token, "123abc", (err, user) => {
         if (err) {
             console.log("JWT Error:", err.message);
-            return res.status(403).json({ message: "Invalid or expired token" });f
+            return res.status(403).json({ message: "Invalid or expired token" }); f
         }
-        req.name = user.name;
+        req.username = user.name;
+        req.id = user._id;
         next();
     });
 }
 
 app.get("/", authenticateToken, (req, res) => {
-    return res.json({ status: 200, name: req.name });
+    return res.json({ status: 200, name: req.username });
 });
 
 app.post("/login", async (req, res) => {
@@ -65,9 +68,9 @@ app.post("/login", async (req, res) => {
                 console.log(email);
                 const name = user.firstName;
                 const tokendata = {
-                    _id : user._id,
-                    name:name,
-                    email:email
+                    _id: user._id,
+                    name: name,
+                    email: email
                 }
                 const token = jwt.sign(tokendata, "123abc", { expiresIn: "1d" });
                 res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'Strict' });
@@ -141,27 +144,157 @@ app.post("/profilepage", async (req, res) => {
     }
 });
 
-app.post("/edituser", async (req, res)=>{
+app.post("/edituser", async (req, res) => {
 
-    try{
-        const {_id, ...resbody} = req.body;
+    try {
+        const { _id, ...resbody } = req.body;
 
-        const updateuser = await userModel.findByIdAndUpdate(_id,resbody);
+        const updateuser = await userModel.findByIdAndUpdate(_id, resbody);
         res.json(
             {
-                message:"user details updated!!",
-                status:200,
-                success:true
+                message: "user details updated!!",
+                status: 200,
+                success: true
             }
         )
-    }catch(err){
+    } catch (err) {
         res.json({
-            error:err.message,
-            status:400,
+            error: err.message,
+            status: 400,
         })
     }
 })
 
+app.post("/uploaditem", authenticateToken, async (req, res) => {
+    try {
+
+        console.log("hello!");
+        // Extract data from the request body
+        const { name, price, category, description } = req.body;
+
+        // Extract sellerId and sellerName from the token (set by `authenticateToken`)
+        const sellerId = req.id;
+        const sellerName = req.username;
+
+        // Validate required fields
+        if (!name || !price || !category || !description) {
+            return res.status(400).json({
+                status: 400,
+                message: "All fields (name, price, category, description) are required.",
+            });
+        }
+
+        //   console.log("name:"+name,"price:"+price,"category:"+category,"description:"+description,"sellerId:"+sellerId,"sellerName:"+sellerName);
+
+        // Create a new product instance
+        const newProduct = new productModel({
+            name,
+            price,
+            category,
+            description,
+            sellerId,
+            sellerName
+        });
+
+        // Save the product to the database
+        await newProduct.save();
+
+        // Respond with success
+        res.status(200).json({
+            status: 200,
+            message: "Product uploaded successfully.",
+            product: newProduct,
+        });
+    } catch (err) {
+        console.error("Error uploading item:", err.message);
+        res.status(500).json({
+            status: 500,
+            message: "Server error. Could not upload the product.",
+            error: err.message,
+        });
+    }
+});
+
+app.get("/getproduct", authenticateToken, async (req, res) => {
+    try {
+
+        const allproducts = await productModel.find().sort({ createdAt: -1 });
+
+        res.status(200).json({
+            message: "all products",
+            success: true,
+            error: false,
+            data: allproducts
+        })
+
+    } catch (err) {
+        res.status(500).json({
+            message: err.message || err,
+            error: true,
+            success: false
+        })
+    }
+})
+
+
+app.post("/addtocart", authenticateToken, async (req, res) => {
+    try {
+
+        const  {productId}  = req.body;
+        // console.log("product id:",productId);
+        const userId = req.id;
+        // console.log("userId:",userId);
+
+        const isAvailable = await cartProductModel.findOne({productId:productId});
+
+        // console.log("is avai:",isAvailable);
+
+        const product = await productModel.findOne({_id:productId});
+
+        // console.log("sellerId",product.sellerId);
+
+
+        if (isAvailable) {
+            console.log("product already there")
+            return res.status(200).json({
+                message: "Already exists in Cart",
+                error: true,
+                success: false
+            })
+        }
+
+        if(userId === product.sellerId){
+            console.log("same seller and buyer")
+            return res.status(200).json({
+                message: "You Can't buy your product!!",
+                error: true,
+                success: false
+            })
+        }
+
+        const cartproduct = {
+            productId: productId,
+            userId: userId
+        }
+
+        const cartproductobj = new cartProductModel(cartproduct);
+        const saveproductcart = await cartproductobj.save();
+
+        return res.status(200).json({
+            data:saveproductcart,
+            message: "Added to cart",
+            error: false,
+            success: true
+        });
+        
+    } catch (err) {
+        res.status(500).json({
+            message: err.message || err,
+            error: true,
+            success: false
+        })
+    }
+})
 
 
 

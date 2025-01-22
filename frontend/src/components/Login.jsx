@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useContext, useState } from "react";
 import axios from 'axios';
 import { Setauth, Settoken } from "../App";
+import {toast} from "react-toastify";
 
 
 function Login() {
@@ -23,18 +24,21 @@ function Login() {
                     setToken('token');
                     localStorage.setItem('token', result.data.token);
                     setauth(true);
+                    toast.success("Login success!")
                     navigate('/profilepage');
                 } else {
-                    alert(result.data.message); // Access the message property
+                    // alert(result.data.message); // Access the message property
+                    toast.error(result.data.message)
                 }
             })
             .catch(err => {
                 // If the error response contains data, show it
                 if (err.response && err.response.data && err.response.data.message) {
-                    alert(err.response.data.message);
+                    // alert(err.response.data.message);
+                    toast.error(err.response.data.message);
                 } else {
                     console.error(err);
-                    alert("An unexpected error occurred.");
+                    toast.error("unexpected error!!");
                 }
             });
     };
@@ -42,16 +46,19 @@ function Login() {
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="email">Email ID</label>
-                <input type="text" id="email" name="email" placeholder="name@some.iiit.ac.in" onChange={(e) => { setEmail(e.target.value) }} />
-                <label htmlFor="password">Password</label>
-                <input type="password" name="password" id="password" placeholder="*******" onChange={(e) => setPassword(e.target.value)} />
-                <p>
-                    Don't have an account? <Link to="/register">Register here</Link>
-                </p>
-                <button type="submit"> submit </button>
-            </form>
+            <div className="lr">
+                <form onSubmit={handleSubmit}>
+                    <label htmlFor="email">Email ID</label>
+                    <input type="text" id="email" name="email" placeholder="name@some.iiit.ac.in" onChange={(e) => { setEmail(e.target.value) }} />
+                    <label htmlFor="password">Password</label>
+                    <input type="password" name="password" id="password" placeholder="*******" onChange={(e) => setPassword(e.target.value)} />
+                    <p>
+                        Don't have an account? <Link to="/register">Register here</Link>
+                    </p>
+                    <button type="submit"> submit </button>
+                </form>
+
+            </div>
 
         </>
     )

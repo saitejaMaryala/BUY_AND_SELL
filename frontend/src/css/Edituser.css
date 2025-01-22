@@ -43,13 +43,18 @@
     margin: 10px 0 5px;
   }
   
-  .pop-up input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    
-    border-radius: 4px;
-  }
+/* General input, textarea, and select styling */
+.pop-up input,
+.pop-up select,
+.pop-up textarea {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
   
   .pop-up button {
     width: 100%;
@@ -68,6 +73,29 @@
   .pop-up p {
     text-align: center;
     margin-top: 10px;
+  }
+
+  .pop-up select {
+    background: #f9f9f9;
+    appearance: none; /* Remove native dropdown arrow for consistent styling */
+    cursor: pointer;
+  }
+  
+  .pop-up select:focus {
+    border-color: #007bff; /* Highlight color on focus */
+    outline: none;
+  }
+  
+  /* Style for the textarea element */
+  .pop-up textarea {
+    resize: vertical; /* Allow vertical resizing only */
+    min-height: 100px; /* Set a minimum height */
+    max-height: 300px; /* Optional: Limit the maximum height */
+  }
+  
+  .pop-up textarea:focus {
+    border-color: #007bff;
+    outline: none;
   }
   
   @keyframes fadeIn {
