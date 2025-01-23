@@ -82,7 +82,7 @@ const Searchitems = () => {
                     onChange={() => handleCategoryChange(el.value)}
                     checked={selectedCategories.includes(el.value)}
                   />
-                  <label htmlFor={el.id}>{el.label}</label>
+                  <label htmlForx={el.id}>{el.label}</label>
                 </div>
               ))}
             </div>

@@ -349,5 +349,31 @@ app.post("/deletefromcart",authenticateToken,async (req,res)=>{
     }
 })
 
+app.post("/checkoutcart",authenticateToken,async (req,res)=>{
+    try{
+        const {prodIds,prodsearchIds} = req.body;
+        const deleted = await cartProductModel.deleteMany({
+            _id: { $in: prodIds } // This will delete all documents with IDs in the array
+        });
+
+        const searchdeleted = await productModel.deleteMany({
+            _id :{$in:prodsearchIds}
+        });
+
+        res.status(200).json({
+            message: "Items bought from cart",
+            success: true,
+            error: false,
+            deletedCount: deleted.deletedCount // Optional: returns number of deleted documents
+        });
+        
+    }catch(err){
+        res.status(500).json({
+            message:err.message ,
+            success:false,
+            error:true
+    })
+    }
+})
 
 

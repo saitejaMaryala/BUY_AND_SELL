@@ -21,11 +21,6 @@ export const Settoken = createContext(null);
 export const Isauth = createContext(null);
 
 function App() {
-
-
-
-
-
   const [auth, setAuth] = useState(undefined);
   const [token, setToken] = useState(localStorage.getItem('token') || ''); // Retrieve token from localStorage
 

@@ -6,14 +6,24 @@ import Edituser from '../components/Edituser';
 
 const Profilepage = () => {
   const [user, setUser] = useState(null); // Initial state for the user
-  const [editcomp,seteditcom] = useState(false);
+  const [editcomp, seteditcom] = useState(false);
 
   const fetchUserData = async () => {
     try {
+      const token = localStorage.getItem('token'); // Or document.cookie, etc.
+
+      if (!token) {
+        console.error('No token found');
+        return;
+      }
       const response = await axios.post("http://localhost:3001/profilepage", {}, {
         withCredentials: true, // Include cookies in the request
+        headers: {
+          // Explicitly include the token if not using cookies
+          'Authorization': `Bearer ${token}`
+        }
       });
-      setUser(response.data); // Set the fetched user data to state
+      setUser(response.data); // Set the fetched use  r data to state
     } catch (error) {
       console.error("Error fetching user data:", error.message);
     }
@@ -63,7 +73,7 @@ const Profilepage = () => {
               </table>
             </div>
             <div className="edit">
-              <FaUserEdit onClick={()=>seteditcom(true)}/>
+              <FaUserEdit onClick={() => seteditcom(true)} />
             </div>
           </div>
         </div>
@@ -73,7 +83,7 @@ const Profilepage = () => {
 
       <div>
         {
-          editcomp && <Edituser formData={user} onclose={()=>{seteditcom(false)}} fetchUserData = {fetchUserData}/>
+          editcomp && <Edituser formData={user} onclose={() => { seteditcom(false) }} fetchUserData={fetchUserData} />
         }
       </div>
 
