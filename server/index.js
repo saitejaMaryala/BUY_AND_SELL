@@ -23,12 +23,17 @@ app.use(cookieParser());
 
 
 mongoose.connect(process.env.MONGO_STRING)
-    .then(() => console.log("successful connection to mongodb"))
+    .then(() => {
+
+        console.log("successful connection to mongodb");
+        app.listen(process.env.PORT, () => {
+            console.log(`server is running on port ${process.env.PORT}`);
+        });
+    }
+    )
     .catch(e => console.log("connection to mongodb failed", e))
 
-app.listen(process.env.PORT, () => {
-    console.log(`server is running on port ${process.env.PORT}`);
-});
+
 
 
 function authenticateToken(req, res, next) {
@@ -240,16 +245,16 @@ app.get("/getproduct", authenticateToken, async (req, res) => {
 app.post("/addtocart", authenticateToken, async (req, res) => {
     try {
 
-        const  {productId}  = req.body;
+        const { productId } = req.body;
         // console.log("product id:",productId);
         const userId = req.id;
         // console.log("userId:",userId);
 
-        const isAvailable = await cartProductModel.findOne({productId:productId});
+        const isAvailable = await cartProductModel.findOne({ productId: productId });
 
         // console.log("is avai:",isAvailable);
 
-        const product = await productModel.findOne({_id:productId});
+        const product = await productModel.findOne({ _id: productId });
 
         // console.log("sellerId",product.sellerId);
 
@@ -263,7 +268,7 @@ app.post("/addtocart", authenticateToken, async (req, res) => {
             })
         }
 
-        if(userId === product.sellerId){
+        if (userId === product.sellerId) {
             console.log("same seller and buyer")
             return res.status(200).json({
                 message: "You Can't buy your product!!",
@@ -281,18 +286,66 @@ app.post("/addtocart", authenticateToken, async (req, res) => {
         const saveproductcart = await cartproductobj.save();
 
         return res.status(200).json({
-            data:saveproductcart,
+            data: saveproductcart,
             message: "Added to cart",
             error: false,
             success: true
         });
-        
+
     } catch (err) {
         res.status(500).json({
             message: err.message || err,
             error: true,
             success: false
         })
+    }
+})
+
+app.post("/addtocartview",authenticateToken, async (req,res)=>{
+
+    try{
+
+        const userId = req.id;
+
+        const cartproducts = await cartProductModel.find({
+            userId:userId
+        }).populate("productId");
+
+        res.status(200).json({
+            data:cartproducts,
+            error:false,
+            success:true
+        })
+
+    }catch(err){
+        res.status(500).json({
+            message:err.message || err,
+            error :true,
+            success:false
+        })
+    }
+
+})
+
+app.post("/deletefromcart",authenticateToken,async (req,res)=>{
+    try{
+        const prodId = req.body._id;
+        const deleted =  await cartProductModel.deleteOne({
+            _id:prodId
+        })
+
+        res.status(200).json({
+            message:"removed from cart",
+            success:true,
+            error:false
+        });
+        
+    }catch(err){
+        res.status(500).json({
+            message:err.message ,
+            success:false,
+            error:true
+    })
     }
 })
 

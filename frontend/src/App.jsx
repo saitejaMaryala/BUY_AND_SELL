@@ -13,6 +13,7 @@ import Searchitems from './pages/Searchitems';
 import Cart from './pages/Cart';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProductDetails from './pages/ProductDetails';
+import api from './helper/api';
 
 
 export const Setauth = createContext(null);
@@ -28,40 +29,24 @@ function App() {
   const [auth, setAuth] = useState(undefined);
   const [token, setToken] = useState(localStorage.getItem('token') || ''); // Retrieve token from localStorage
 
-
-
-
-
-  useEffect(() => {
-    if (!token) {
-      setAuth(false);
-      return;
-    }
-
-    axios
-      .get('http://localhost:3001',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+  const authcheck = async () => {
+    await axios
+      .get('/')
       .then((response) => {
-        if (response.status == 200) {
-          setAuth(true);
-        } else {
-          setAuth(false);
-        }
+        setAuth(true);
       })
       .catch((err) => {
         console.error(err);
         setAuth(false);
       });
+  };
+  useEffect(() => {
+    if (!token) {
+      setAuth(false);
+      return;
+    }
+    authcheck();
   }, [token]); // Re-run if token changes
-
-
-  
-
 
   if (auth === undefined) {
     // Show a global loading state while verification is in progress
