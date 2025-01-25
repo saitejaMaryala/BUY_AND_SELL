@@ -1,0 +1,46 @@
+.order-history-container {
+    padding: 20px;
+}
+
+.tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.tabs button:hover {
+    background-color: #0056b3;
+}
+
+.order-section {
+    margin-top: 20px;
+}
+
+.order-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.order-item {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.product-detail {
+    margin-bottom: 5px;
+}
+
+.product-detail span {
+    font-weight: bold;
+}

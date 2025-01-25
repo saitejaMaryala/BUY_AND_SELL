@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const userModel = require("./model/user");
 const productModel = require("./model/product");
 const cartProductModel = require("./model/cartProducts");
+const orderHistoryModel = require("./model/orderhistory");
 // const session = require("express-session");
 const mongostore = require("connect-mongo");
 const jwt = require("jsonwebtoken");
@@ -154,7 +155,17 @@ app.post("/edituser", async (req, res) => {
     try {
         const { _id, ...resbody } = req.body;
 
-        const updateuser = await userModel.findByIdAndUpdate(_id, resbody);
+        const password = req.body.password;
+        const hashpassword = await bcrypt.hash(password, 9);
+
+        if (password) {
+            resbody.password = await bcrypt.hash(password, 9);
+        }else if(password === ""){ 
+           
+            delete resbody.password; // Remove password from update if it's not provided
+        }
+
+        const updateuser = await userModel.findByIdAndUpdate(_id, resbody, { new: true });
         res.json(
             {
                 message: "user details updated!!",
@@ -170,16 +181,14 @@ app.post("/edituser", async (req, res) => {
     }
 })
 
+// Endpoint to upload a new product
 app.post("/uploaditem", authenticateToken, async (req, res) => {
     try {
-
-        console.log("hello!");
         // Extract data from the request body
         const { name, price, category, description } = req.body;
 
-        // Extract sellerId and sellerName from the token (set by `authenticateToken`)
-        const sellerId = req.id;
-        const sellerName = req.username;
+        // Extract sellerId from the token (set by `authenticateToken`)
+        const sellerId = req.id; // Assuming `authenticateToken` sets the seller's user ID in `req.id`
 
         // Validate required fields
         if (!name || !price || !category || !description) {
@@ -189,16 +198,13 @@ app.post("/uploaditem", authenticateToken, async (req, res) => {
             });
         }
 
-        //   console.log("name:"+name,"price:"+price,"category:"+category,"description:"+description,"sellerId:"+sellerId,"sellerName:"+sellerName);
-
         // Create a new product instance
         const newProduct = new productModel({
             name,
             price,
             category,
             description,
-            sellerId,
-            sellerName
+            sellerId, // Reference to the user's ObjectId
         });
 
         // Save the product to the database
@@ -220,26 +226,34 @@ app.post("/uploaditem", authenticateToken, async (req, res) => {
     }
 });
 
+// Endpoint to get all products
 app.get("/getproduct", authenticateToken, async (req, res) => {
     try {
 
-        const allproducts = await productModel.find().sort({ createdAt: -1 });
+        const userId=req.id;
+        // Fetch all products and populate the seller's details
+        const allProducts = await productModel
+        // .find({ sellerId: { $ne: userId } }) // Exclude products where sellerId is equal to userId
+        .find()
+        .populate("sellerId", "firstName lastName email") // Populates seller details
+        .sort({ createdAt: -1 });
 
         res.status(200).json({
-            message: "all products",
+            message: "All products retrieved successfully.",
             success: true,
             error: false,
-            data: allproducts
-        })
-
+            data: allProducts,
+        });
     } catch (err) {
+        console.error("Error fetching products:", err.message);
         res.status(500).json({
-            message: err.message || err,
+            message: err.message || "Server error. Could not fetch the products.",
             error: true,
-            success: false
-        })
+            success: false,
+        });
     }
-})
+});
+
 
 
 app.post("/addtocart", authenticateToken, async (req, res) => {
@@ -268,7 +282,9 @@ app.post("/addtocart", authenticateToken, async (req, res) => {
             })
         }
 
-        if (userId === product.sellerId) {
+        // console.log("userId and sellerId",userId, product.sellerId._id.toString())
+
+        if (userId === product.sellerId._id.toString()) {
             console.log("same seller and buyer")
             return res.status(200).json({
                 message: "You Can't buy your product!!",
@@ -301,79 +317,170 @@ app.post("/addtocart", authenticateToken, async (req, res) => {
     }
 })
 
-app.post("/addtocartview",authenticateToken, async (req,res)=>{
+app.post("/addtocartview", authenticateToken, async (req, res) => {
 
-    try{
+    try {
 
         const userId = req.id;
 
         const cartproducts = await cartProductModel.find({
-            userId:userId
+            userId: userId
         }).populate("productId");
 
         res.status(200).json({
-            data:cartproducts,
-            error:false,
-            success:true
+            data: cartproducts,
+            error: false,
+            success: true
         })
 
-    }catch(err){
+    } catch (err) {
         res.status(500).json({
-            message:err.message || err,
-            error :true,
-            success:false
+            message: err.message || err,
+            error: true,
+            success: false
         })
     }
 
 })
 
-app.post("/deletefromcart",authenticateToken,async (req,res)=>{
-    try{
+app.post("/deletefromcart", authenticateToken, async (req, res) => {
+    try {
         const prodId = req.body._id;
-        const deleted =  await cartProductModel.deleteOne({
-            _id:prodId
+        const deleted = await cartProductModel.deleteOne({
+            _id: prodId
         })
 
         res.status(200).json({
-            message:"removed from cart",
-            success:true,
-            error:false
+            message: "removed from cart",
+            success: true,
+            error: false
         });
-        
-    }catch(err){
+
+    } catch (err) {
         res.status(500).json({
-            message:err.message ,
-            success:false,
-            error:true
-    })
+            message: err.message,
+            success: false,
+            error: true
+        })
     }
 })
 
-app.post("/checkoutcart",authenticateToken,async (req,res)=>{
-    try{
-        const {prodIds,prodsearchIds} = req.body;
+app.post("/checkoutcart", authenticateToken, async (req, res) => {
+    try {
+        const { prodIds, prodsearchIds } = req.body; // `prodIds` are cart entry IDs, `prodsearchIds` are product entry IDs.
+
+        // console.log("cart:",prodIds);
+
+        // Delete cart items corresponding to the provided `prodIds`
         const deleted = await cartProductModel.deleteMany({
-            _id: { $in: prodIds } // This will delete all documents with IDs in the array
+            _id: { $in: prodIds }, // Deletes documents with IDs in `prodIds`
         });
 
-        const searchdeleted = await productModel.deleteMany({
-            _id :{$in:prodsearchIds}
-        });
+        // const deletedinsearch = await productModel.deleteMany({
+        //     _id:{ $in:prodsearchIds}
+        // })
 
+        // Extract buyer information from the token
+        const buyerName = req.username;
+        const buyerId = req.id;
+
+        const products = await productModel.find({_id:prodsearchIds})
+
+        // Prepare order history entries for all `prodsearchIds`
+        const orderHistoryEntries = products.map(product => ({
+            prodId:product._id, // Reference to the product in the `products` collection
+            buyerId:buyerId, // Reference to the buyer in the `users` collection
+            sellerId:product.sellerId,
+            otp:"", // Generate a random 6-digit OTP
+            Delivered: "Pending", // Initial delivery status
+        }));
+
+        // Insert multiple entries into the `orderHistory` collection
+        await orderHistoryModel.insertMany(orderHistoryEntries);
+
+        // Respond with success
         res.status(200).json({
-            message: "Items bought from cart",
+            message: "Order placed successfully.",
             success: true,
             error: false,
-            deletedCount: deleted.deletedCount // Optional: returns number of deleted documents
+            deletedCount: deleted.deletedCount, // Number of cart items deleted
+            orderHistory: orderHistoryEntries, // Return the created order entries
         });
-        
-    }catch(err){
+    } catch (err) {
+        // Handle errors
         res.status(500).json({
-            message:err.message ,
-            success:false,
-            error:true
-    })
+            message: err.message,
+            success: false,
+            error: true,
+        });
     }
-})
+});
+
+
+app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
+    try {
+        const userId = req.id; // User ID from the token
+        console.log("user Id in boughtsold:",userId);
+
+        const soldprods = await orderHistoryModel
+        .find({ sellerId: userId, Delivered: { $ne: "Pending" } })
+        .populate("prodId", "name price category description")
+        .populate("buyerId", "firstName lastName email");
+
+        // Fetch bought products (where user is the buyer)
+        const boughtprods = await orderHistoryModel
+            .find({ buyerId: userId, Delivered: { $ne: "Pending" } }) // Use userId directly as it is already an ObjectId
+            .populate("prodId", "name price category description")
+            .populate("sellerId", "firstName lastName email");
+        console.log("hello1");
+
+        // Handle pending orders (where user is the buyer and order is pending)
+        const pendingOrders = await orderHistoryModel
+            .find({ buyerId: userId, Delivered: "Pending" }) // No need for `$in`, as we are comparing buyerId directly
+            .populate("prodId", "name price category description")
+            .populate("sellerId", "firstName lastName email");
+
+            console.log("hello2");
+
+        // Generate OTP and update the orderHistory for pending orders
+        const updatedPendingOrders = [];
+        for (let order of pendingOrders) {
+            if (order.buyerId.equals(userId)) { // Correct way to compare ObjectId
+                // Generate OTP for the buyer
+                const otp = Math.floor(100000 + Math.random() * 900000).toString(); // Generates a 6-character OTP
+
+                // Hash the OTP
+                const hashedOtp = await bcrypt.hash(otp, 10);
+
+                // Update the OTP in the orderHistory
+                order.otp = hashedOtp;
+                await order.save();
+
+                // Add OTP to the product details for response
+                updatedPendingOrders.push({ ...order.toObject(), otp });
+            }
+        }
+        console.log("hello3");
+
+        console.log("buy pending:",pendingOrders);
+
+        console.log("updated one:",updatedPendingOrders);
+
+        res.status(200).json({
+            soldprods,
+            boughtprods,
+            updatedPendingOrders,
+            success: true,
+            error: false,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: err.message,
+            success: false,
+            error: true,
+        });
+    }
+});
+
 
 

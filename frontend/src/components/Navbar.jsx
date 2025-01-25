@@ -26,6 +26,9 @@ const Navbar = () => {
               <Link to="/searchitems" className="nav-link">Search Items</Link>
               </li>
               <li>
+              <Link to="/orderhistory" className="nav-link">Order History</Link>
+              </li>
+              <li>
               <Link to="/cart" className="nav-link">Cart</Link>
               </li>
               <li>

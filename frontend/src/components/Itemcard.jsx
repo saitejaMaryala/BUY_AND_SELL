@@ -6,7 +6,7 @@ import "../css/Itemcard.css";
 const Itemcard = ({ data }) => {
 
 
-  const {name, price, category, description, sellerName } = data;
+  const {name, price, category, description, sellerId } = data;
 
   const navigate = useNavigate();
 

@@ -15,9 +15,9 @@ const Edituser = ({
     ...formData,
     firstName: formData.firstName,
     lastName: formData.lastName,
-    email: formData.email,
     age: formData.age,
-    contactNumber:formData.contactNumber,
+    contactNumber: formData.contactNumber,
+    password:""
   });
 
   const handleChange = (e) => {
@@ -27,16 +27,16 @@ const Edituser = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:3001/edituser",data)
-      .then(res=>{
-        if(res.status === 200){
+    axios.post("http://localhost:3001/edituser", data)
+      .then(res => {
+        if (res.status === 200) {
           console.log("updateed")
           toast.success("Updated!!");
           onclose();
           fetchUserData();
         }
-      }).catch(err=>{
-        console.log("Not updated error!!",err);
+      }).catch(err => {
+        console.log("Not updated error!!", err);
         toast.error("Not Updated ERROR!!");
       });
   }
@@ -67,18 +67,6 @@ const Edituser = ({
             onChange={handleChange}
             required
           />
-
-          <label htmlFor="email">Email</label>
-          <input
-            type="text"
-            id="email"
-            name="email"
-            placeholder="example@iiit.ac.in"
-            value={data.email}
-            onChange={handleChange}
-            required
-          />
-
           <label htmlFor="age">Age</label>
           <input
             type="number"
@@ -101,6 +89,18 @@ const Edituser = ({
             onChange={handleChange}
             required
           />
+
+          <label htmlFor="New Password">New Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="New Password"
+            // value={data.password}
+            onChange={handleChange}
+          />
+
+          {/* something wrong with the password */}
 
           <button type="submit">Update</button>
         </form>

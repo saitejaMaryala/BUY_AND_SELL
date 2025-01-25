@@ -27,7 +27,8 @@ const ProductDetails = () => {
       <p><strong>Price:</strong> ${product.price}</p>
       <p><strong>Category:</strong> {product.category}</p>
       <p><strong>Description:</strong> {product.description}</p>
-      <p><strong>Seller:</strong> {product.sellerName}</p>
+      <p><strong>Seller:</strong> {product.sellerId.firstName}</p>
+      <p><strong>Seller Email:</strong> {product.sellerId.email}</p>
       <button onClick={(e)=>handleAddToCart(e,product?._id)} style={{ marginRight: '10px' }}>
         Add to Cart
       </button>

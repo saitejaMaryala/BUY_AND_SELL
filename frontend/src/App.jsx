@@ -1,6 +1,6 @@
 import './App.css';
 import Navbar from './components/Navbar';
-import { BrowserRouter, Route, Routes, Navigate} from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { useState, useEffect, createContext } from 'react';
 import { ToastContainer } from "react-toastify";
 import axios from 'axios';
@@ -14,6 +14,7 @@ import Cart from './pages/Cart';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProductDetails from './pages/ProductDetails';
 import api from './helper/api';
+import OrderHistory from './pages/OrderHistory';
 
 
 export const Setauth = createContext(null);
@@ -55,47 +56,55 @@ function App() {
       <Setauth.Provider value={setAuth}>
         <Settoken.Provider value={setToken}>
           <BrowserRouter>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={auth ? <Navigate to="/profilepage" />  : <Navigate to="/login" />} />
-            <Route path="/login" element={auth ? <Navigate to="/profilepage" /> : <Login />} />
-            <Route path="/register" element={auth ? <Navigate to="/profilepage" /> : <Register />} />
-            <Route path="/logout" element={<Logout />} />
-            <Route
-              path="/profilepage"
-              element={
-                <ProtectedRoute auth={auth}>
-                  <Profilepage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/searchitems"
-              element={
-                <ProtectedRoute auth={auth}>
-                  <Searchitems />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/cart"
-              element={
-                <ProtectedRoute auth={auth}>
-                  <Cart />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path='/product-details/:id'
-              element={
-                <ProtectedRoute auth={auth}>
-                  <ProductDetails/>
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/logout" element={<Logout />} />
-          </Routes>
-          <ToastContainer position='top-center'/>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={auth ? <Navigate to="/profilepage" /> : <Navigate to="/login" />} />
+              <Route path="/login" element={auth ? <Navigate to="/profilepage" /> : <Login />} />
+              <Route path="/register" element={auth ? <Navigate to="/profilepage" /> : <Register />} />
+              <Route path="/logout" element={<Logout />} />
+              <Route
+                path="/profilepage"
+                element={
+                  <ProtectedRoute auth={auth}>
+                    <Profilepage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/searchitems"
+                element={
+                  <ProtectedRoute auth={auth}>
+                    <Searchitems />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/cart"
+                element={
+                  <ProtectedRoute auth={auth}>
+                    <Cart />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/orderhistory'
+                element={
+                  <ProtectedRoute auth={auth}>
+                    <OrderHistory />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/product-details/:id'
+                element={
+                  <ProtectedRoute auth={auth}>
+                    <ProductDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/logout" element={<Logout />} />
+            </Routes>
+            <ToastContainer position='top-center' />
           </BrowserRouter>
         </Settoken.Provider>
       </Setauth.Provider>
