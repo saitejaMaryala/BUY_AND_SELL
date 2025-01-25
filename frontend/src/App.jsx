@@ -15,6 +15,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ProductDetails from './pages/ProductDetails';
 import api from './helper/api';
 import OrderHistory from './pages/OrderHistory';
+import DeliverItems from './pages/DeliverItems';
 
 
 export const Setauth = createContext(null);
@@ -99,6 +100,14 @@ function App() {
                 element={
                   <ProtectedRoute auth={auth}>
                     <ProductDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/deliveritems'
+                element={
+                  <ProtectedRoute auth={auth}>
+                    <DeliverItems />
                   </ProtectedRoute>
                 }
               />

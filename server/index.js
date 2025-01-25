@@ -376,9 +376,9 @@ app.post("/checkoutcart", authenticateToken, async (req, res) => {
             _id: { $in: prodIds }, // Deletes documents with IDs in `prodIds`
         });
 
-        // const deletedinsearch = await productModel.deleteMany({
-        //     _id:{ $in:prodsearchIds}
-        // })
+        const deletedinsearch = await productModel.deleteMany({
+            _id:{ $in:prodsearchIds}
+        })
 
         // Extract buyer information from the token
         const buyerName = req.username;
@@ -420,7 +420,7 @@ app.post("/checkoutcart", authenticateToken, async (req, res) => {
 app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
     try {
         const userId = req.id; // User ID from the token
-        console.log("user Id in boughtsold:",userId);
+        // console.log("user Id in boughtsold:",userId);
 
         const soldprods = await orderHistoryModel
         .find({ sellerId: userId, Delivered: { $ne: "Pending" } })
@@ -432,7 +432,7 @@ app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
             .find({ buyerId: userId, Delivered: { $ne: "Pending" } }) // Use userId directly as it is already an ObjectId
             .populate("prodId", "name price category description")
             .populate("sellerId", "firstName lastName email");
-        console.log("hello1");
+        // console.log("hello1");
 
         // Handle pending orders (where user is the buyer and order is pending)
         const pendingOrders = await orderHistoryModel
@@ -440,7 +440,7 @@ app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
             .populate("prodId", "name price category description")
             .populate("sellerId", "firstName lastName email");
 
-            console.log("hello2");
+            // console.log("hello2");
 
         // Generate OTP and update the orderHistory for pending orders
         const updatedPendingOrders = [];
@@ -460,11 +460,11 @@ app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
                 updatedPendingOrders.push({ ...order.toObject(), otp });
             }
         }
-        console.log("hello3");
+        // console.log("hello3");
 
-        console.log("buy pending:",pendingOrders);
+        // console.log("buy pending:",pendingOrders);
 
-        console.log("updated one:",updatedPendingOrders);
+        // console.log("updated one:",updatedPendingOrders);
 
         res.status(200).json({
             soldprods,
@@ -481,6 +481,80 @@ app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
         });
     }
 });
+
+app.post("/deliveritems",authenticateToken,async (req,res)=>{
+
+    try{
+
+        const userId = req.id;
+
+        const pendingdelivers = await orderHistoryModel.find({sellerId:userId,Delivered:"Pending"})
+        .populate("prodId", "name price category description")
+        .populate("buyerId", "firstName lastName email");
+
+        // console.log("deliver pendings:",pendingdelivers);
+
+        res.status(200).json({
+            success:true,
+            error:false,
+            data:pendingdelivers
+        });
+
+    }catch(err){
+        res.status(500).json({
+            message: err.message,
+            success: false,
+            error: true,
+        });
+    }
+
+})
+
+app.post("/completedeliver", authenticateToken, async (req, res) => {
+    try {
+        const { otp, prodId } = req.body;
+        const userId = req.id;
+
+        // Find the pending order where the seller is the current user and the product matches
+        const pendingOrder = await orderHistoryModel.findOne({ sellerId: userId, prodId: prodId });
+
+        if (!pendingOrder) {
+            return res.status(404).json({
+                message: "Order not found or already completed.",
+                success: false,
+                error: true,
+            });
+        }
+
+        // Compare the provided OTP with the stored hashed OTP
+        const isOtpValid = await bcrypt.compare(otp, pendingOrder.otp);
+
+        if (!isOtpValid) {
+            return res.status(200).json({
+                message: "Incorrect OTP. Please try again.",
+                success: false,
+                error: true,
+            });
+        }
+
+        // Update the delivery status to "Done"
+        pendingOrder.Delivered = "Done";
+        await pendingOrder.save();
+
+        res.status(200).json({
+            message: "Delivery completed successfully.",
+            success: true,
+            error: false,
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: err.message || "Server error. Could not complete the delivery.",
+            success: false,
+            error: true,
+        });
+    }
+});
+
 
 
 

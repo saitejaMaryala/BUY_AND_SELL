@@ -52,6 +52,9 @@ const OrderHistory = () => {
                                 <div className="product-detail">
                                     <span>Buyer Name:</span> {product.buyerId.firstName} {product.buyerId.lastName}
                                 </div>
+                                <div className="product-detail">
+                                    <span>Buyer Email:</span> {product.buyerId.email}
+                                </div>
                             </li>
                         ))}
                     </ul>
@@ -75,6 +78,9 @@ const OrderHistory = () => {
                                 </div>
                                 <div className="product-detail">
                                     <span>Seller Name:</span> {product.sellerId.firstName} {product.sellerId.lastName}
+                                </div>
+                                <div className="product-detail">
+                                    <span>Seller Email:</span> {product.sellerId.email}
                                 </div>
                             </li>
                         ))}
@@ -102,6 +108,9 @@ const OrderHistory = () => {
                                 </div> */}
                                 <div className="product-detail">
                                     <span>Seller Name:</span> {product.sellerId.firstName} {product.sellerId.lastName}
+                                </div>
+                                <div className="product-detail">
+                                    <span>Seller Email:</span> {product.sellerId.email}
                                 </div>
                                 <div className="product-detail">
                                     <span>OTP:</span> {product.otp ? product.otp : "N/A"}
