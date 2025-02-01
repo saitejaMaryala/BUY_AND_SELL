@@ -1,9 +1,12 @@
 import "../css/Login.css"
 import { Link, useNavigate } from 'react-router-dom';
-import { useContext, useState } from "react";
+import { useContext, useState,useEffect } from "react";
 import axios from 'axios';
 import { Setauth, Settoken } from "../App";
 import {toast} from "react-toastify";
+import ReCAPTCHA from "react-google-recaptcha";
+
+// 6LfyscQqAAAAAC1QI3ooKBcSKKkMKr8gRTpAWBpD
 
 
 function Login() {
@@ -12,13 +15,23 @@ function Login() {
     const setToken = useContext(Settoken);
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
+    const [recapval,setrecapval] = useState('');
     const navigate = useNavigate();
+
+    // useEffect(() => {
+    //     // Reset reCAPTCHA state if needed
+    //     setrecapval(null);
+    // }, []);
+
+    // useEffect(() => {
+    //     console.log("Updated recapval:", recapval);
+    // }, [recapval]);
 
     axios.defaults.withCredentials = true;
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axios.post("http://localhost:3001/login", { email, password })
+        axios.post("http://localhost:3001/login", { email, password , recapval})
             .then(result => {
                 if (result.status == 200) {
                     setToken('token');
@@ -43,6 +56,11 @@ function Login() {
             });
     };
 
+    const onSuccess = (key)=>{
+        setrecapval(key);
+        console.log("key:",key);
+    }
+
 
     return (
         <>
@@ -55,7 +73,12 @@ function Login() {
                     <p>
                         Don't have an account? <Link to="/register">Register here</Link>
                     </p>
-                    <button type="submit"> submit </button>
+                    <ReCAPTCHA
+                    sitekey="6LfyscQqAAAAAC1QI3ooKBcSKKkMKr8gRTpAWBpD"
+                    onChange={onSuccess}
+                    className="g-recaptcha"
+                    />
+                    <button type="submit" disabled = {!recapval}> submit </button>
                 </form>
 
             </div>

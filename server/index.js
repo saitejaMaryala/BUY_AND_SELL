@@ -11,6 +11,7 @@ const orderHistoryModel = require("./model/orderhistory");
 const mongostore = require("connect-mongo");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const axios = require("axios");
 dotenv.config();
 
 const app = express();
@@ -65,7 +66,17 @@ app.get("/", authenticateToken, (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, recapval } = req.body;
+
+        const secret_key = process.env.RECAPTCHA_SECRET_KEY; // Store in environment variables
+
+        // Verify reCAPTCHA token
+        const verificationURL = `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${recapval}`;
+        const recaptchaResponse = await axios.post(verificationURL);
+
+        if (!recaptchaResponse.data.success) {
+            return res.status(400).json({ message: "reCAPTCHA verification failed!" });
+        }
 
         const user = await userModel.findOne({ email });
         if (user) {
@@ -160,8 +171,8 @@ app.post("/edituser", async (req, res) => {
 
         if (password) {
             resbody.password = await bcrypt.hash(password, 9);
-        }else if(password === ""){ 
-           
+        } else if (password === "") {
+
             delete resbody.password; // Remove password from update if it's not provided
         }
 
@@ -230,13 +241,13 @@ app.post("/uploaditem", authenticateToken, async (req, res) => {
 app.get("/getproduct", authenticateToken, async (req, res) => {
     try {
 
-        const userId=req.id;
+        const userId = req.id;
         // Fetch all products and populate the seller's details
         const allProducts = await productModel
-        // .find({ sellerId: { $ne: userId } }) // Exclude products where sellerId is equal to userId
-        .find()
-        .populate("sellerId", "firstName lastName email") // Populates seller details
-        .sort({ createdAt: -1 });
+            // .find({ sellerId: { $ne: userId } }) // Exclude products where sellerId is equal to userId
+            .find()
+            .populate("sellerId", "firstName lastName email") // Populates seller details
+            .sort({ createdAt: -1 });
 
         res.status(200).json({
             message: "All products retrieved successfully.",
@@ -377,21 +388,21 @@ app.post("/checkoutcart", authenticateToken, async (req, res) => {
         });
 
         const deletedinsearch = await productModel.deleteMany({
-            _id:{ $in:prodsearchIds}
+            _id: { $in: prodsearchIds }
         })
 
         // Extract buyer information from the token
         const buyerName = req.username;
         const buyerId = req.id;
 
-        const products = await productModel.find({_id:prodsearchIds})
+        const products = await productModel.find({ _id: prodsearchIds })
 
         // Prepare order history entries for all `prodsearchIds`
         const orderHistoryEntries = products.map(product => ({
-            prodId:product._id, // Reference to the product in the `products` collection
-            buyerId:buyerId, // Reference to the buyer in the `users` collection
-            sellerId:product.sellerId,
-            otp:"", // Generate a random 6-digit OTP
+            prodId: product._id, // Reference to the product in the `products` collection
+            buyerId: buyerId, // Reference to the buyer in the `users` collection
+            sellerId: product.sellerId,
+            otp: "", // Generate a random 6-digit OTP
             Delivered: "Pending", // Initial delivery status
         }));
 
@@ -423,9 +434,9 @@ app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
         // console.log("user Id in boughtsold:",userId);
 
         const soldprods = await orderHistoryModel
-        .find({ sellerId: userId, Delivered: { $ne: "Pending" } })
-        .populate("prodId", "name price category description")
-        .populate("buyerId", "firstName lastName email");
+            .find({ sellerId: userId, Delivered: { $ne: "Pending" } })
+            .populate("prodId", "name price category description")
+            .populate("buyerId", "firstName lastName email");
 
         // Fetch bought products (where user is the buyer)
         const boughtprods = await orderHistoryModel
@@ -440,7 +451,7 @@ app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
             .populate("prodId", "name price category description")
             .populate("sellerId", "firstName lastName email");
 
-            // console.log("hello2");
+        // console.log("hello2");
 
         // Generate OTP and update the orderHistory for pending orders
         const updatedPendingOrders = [];
@@ -482,25 +493,25 @@ app.post("/boughtsoldandpending", authenticateToken, async (req, res) => {
     }
 });
 
-app.post("/deliveritems",authenticateToken,async (req,res)=>{
+app.post("/deliveritems", authenticateToken, async (req, res) => {
 
-    try{
+    try {
 
         const userId = req.id;
 
-        const pendingdelivers = await orderHistoryModel.find({sellerId:userId,Delivered:"Pending"})
-        .populate("prodId", "name price category description")
-        .populate("buyerId", "firstName lastName email");
+        const pendingdelivers = await orderHistoryModel.find({ sellerId: userId, Delivered: "Pending" })
+            .populate("prodId", "name price category description")
+            .populate("buyerId", "firstName lastName email");
 
         // console.log("deliver pendings:",pendingdelivers);
 
         res.status(200).json({
-            success:true,
-            error:false,
-            data:pendingdelivers
+            success: true,
+            error: false,
+            data: pendingdelivers
         });
 
-    }catch(err){
+    } catch (err) {
         res.status(500).json({
             message: err.message,
             success: false,
