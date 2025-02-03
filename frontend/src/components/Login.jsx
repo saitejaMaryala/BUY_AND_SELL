@@ -77,7 +77,7 @@ function Login() {
                         Don't have an account? <Link to="/register">Register here</Link>
                     </p>
                     <ReCAPTCHA
-                    sitekey="6LeYCMoqAAAAALlAzL7-vmffrVOHvZNrSxciguvE"
+                    sitekey="6LfyscQqAAAAAC1QI3ooKBcSKKkMKr8gRTpAWBpD"
                     onChange={onSuccess}
                     className="g-recaptcha"
                     />

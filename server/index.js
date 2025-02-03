@@ -277,7 +277,7 @@ app.post("/addtocart", authenticateToken, async (req, res) => {
         const userId = req.id;
         // console.log("userId:",userId);
 
-        const isAvailable = await cartProductModel.findOne({ productId: productId });
+        const isAvailable = await cartProductModel.findOne({ productId: productId ,userId:userId});
 
         // console.log("is avai:",isAvailable);
 
@@ -386,7 +386,7 @@ app.post("/checkoutcart", authenticateToken, async (req, res) => {
 
         // Delete cart items corresponding to the provided `prodIds`
         const deleted = await cartProductModel.deleteMany({
-            _id: { $in: prodIds }, // Deletes documents with IDs in `prodIds`
+            productId: { $in: prodsearchIds }, // Deletes documents with IDs in `prodIds`
         });
 
         const updatedProducts = await productModel.updateMany(
