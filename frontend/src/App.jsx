@@ -16,6 +16,7 @@ import ProductDetails from './pages/ProductDetails';
 import api from './helper/api';
 import OrderHistory from './pages/OrderHistory';
 import DeliverItems from './pages/DeliverItems';
+import Support from './pages/Support';
 
 
 export const Setauth = createContext(null);
@@ -108,6 +109,14 @@ function App() {
                 element={
                   <ProtectedRoute auth={auth}>
                     <DeliverItems />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/support'
+                element={
+                  <ProtectedRoute auth={auth}>
+                    <Support />
                   </ProtectedRoute>
                 }
               />

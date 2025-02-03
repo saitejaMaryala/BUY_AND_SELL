@@ -197,6 +197,7 @@ app.post("/uploaditem", authenticateToken, async (req, res) => {
     try {
         // Extract data from the request body
         const { name, price, category, description } = req.body;
+        const status = "Available";
 
         // Extract sellerId from the token (set by `authenticateToken`)
         const sellerId = req.id; // Assuming `authenticateToken` sets the seller's user ID in `req.id`
@@ -215,6 +216,7 @@ app.post("/uploaditem", authenticateToken, async (req, res) => {
             price,
             category,
             description,
+            status,
             sellerId, // Reference to the user's ObjectId
         });
 
@@ -245,7 +247,7 @@ app.get("/getproduct", authenticateToken, async (req, res) => {
         // Fetch all products and populate the seller's details
         const allProducts = await productModel
             // .find({ sellerId: { $ne: userId } }) // Exclude products where sellerId is equal to userId
-            .find()
+            .find({status:{$in : "Available"}})
             .populate("sellerId", "firstName lastName email") // Populates seller details
             .sort({ createdAt: -1 });
 
@@ -335,7 +337,7 @@ app.post("/addtocartview", authenticateToken, async (req, res) => {
         const userId = req.id;
 
         const cartproducts = await cartProductModel.find({
-            userId: userId
+            userId: userId,
         }).populate("productId");
 
         res.status(200).json({
@@ -387,9 +389,10 @@ app.post("/checkoutcart", authenticateToken, async (req, res) => {
             _id: { $in: prodIds }, // Deletes documents with IDs in `prodIds`
         });
 
-        const deletedinsearch = await productModel.deleteMany({
-            _id: { $in: prodsearchIds }
-        })
+        const updatedProducts = await productModel.updateMany(
+            { _id: { $in: prodsearchIds } },
+            { $set: { status: "Sold" } }
+        );
 
         // Extract buyer information from the token
         const buyerName = req.username;
@@ -566,6 +569,55 @@ app.post("/completedeliver", authenticateToken, async (req, res) => {
     }
 });
 
+
+// app.post("/api/generate", async (req, res) => {
+//     try {
+//       const response = await axios.post(
+//         "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyDWq1A2JHlGnoAuO337La0d8v6niqHze7M",
+//         {
+//           contents: [{ parts: [{ text: req.body.prompt }] }]
+//         }
+//       );
+      
+//       res.json(response.data['candidates'][0]['content']['parts'][0]['text']);
+//     } catch (error) {
+//       res.status(500).json({ error: error.message });
+//     }
+//   });
+
+app.post("/api/generate", async (req, res) => {
+    try {
+      const userMessage = req.body.prompt.toLowerCase();
+  
+      // Custom response for greetings
+      if (userMessage.includes("hello") || userMessage.includes("hi")) {
+        return res.json("Hello! Welcome to our platform. Are you looking to buy or sell something today? 🚀 Check out our amazing deals!");
+      }
+  
+      // Custom response for product-related queries
+      const productKeywords = ["products", "available", "what do you have", "items", "buy"];
+      if (productKeywords.some(keyword => userMessage.includes(keyword))) {
+        return res.json("We have a variety of amazing products available! 🛍️ Check them out on our [Store Page](http://localhost:5173/searchitems) for the latest listings.");
+      }
+      const sellkeywords = ["sell", "upload", "add something","add items","add item"];
+      if (sellkeywords.some(keyword => userMessage.includes(keyword))) {
+        return res.json("You Can go to the [Store Page](http://localhost:5173/searchitems) and upload your items overthere");
+      }
+  
+      // If no custom responses match, use Gemini API
+      const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          contents: [{ parts: [{ text: req.body.prompt }] }]
+        }
+      );
+  
+      res.json(response.data['candidates'][0]['content']['parts'][0]['text']);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
 
 
 

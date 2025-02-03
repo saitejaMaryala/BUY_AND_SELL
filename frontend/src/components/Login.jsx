@@ -14,7 +14,7 @@ function Login() {
     const setauth = useContext(Setauth);
     const setToken = useContext(Settoken);
     const [email, setEmail] = useState();
-    const [password, setPassword] = useState();
+    const [password, setPassword] = useState('');
     const [recapval,setrecapval] = useState('');
     const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ function Login() {
         e.preventDefault();
         axios.post("http://localhost:3001/login", { email, password , recapval})
             .then(result => {
-                if (result.status == 200) {
+                if (result.status === 200) {
                     setToken('token');
                     localStorage.setItem('token', result.data.token);
                     setauth(true);
@@ -41,7 +41,8 @@ function Login() {
                     navigate('/profilepage');
                 } else {
                     // alert(result.data.message); // Access the message property
-                    toast.error(result.data.message)
+                    toast.error(result.data.message);
+                    setauth(false);;
                 }
             })
             .catch(err => {
@@ -49,8 +50,10 @@ function Login() {
                 if (err.response && err.response.data && err.response.data.message) {
                     // alert(err.response.data.message);
                     toast.error(err.response.data.message);
+                    setauth(false);
                 } else {
                     console.error(err);
+                    setauth(false);
                     toast.error("unexpected error!!");
                 }
             });
@@ -74,7 +77,7 @@ function Login() {
                         Don't have an account? <Link to="/register">Register here</Link>
                     </p>
                     <ReCAPTCHA
-                    sitekey="6LfyscQqAAAAAC1QI3ooKBcSKKkMKr8gRTpAWBpD"
+                    sitekey="6LeYCMoqAAAAALlAzL7-vmffrVOHvZNrSxciguvE"
                     onChange={onSuccess}
                     className="g-recaptcha"
                     />

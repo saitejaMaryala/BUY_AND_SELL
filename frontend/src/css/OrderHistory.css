@@ -5,22 +5,29 @@
 
 .tabs {
     display: flex;
-    justify-content: space-between;
+    gap: 10px;
     margin-bottom: 20px;
 }
 
 .tabs button {
-    padding: 10px 20px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
+    padding: 10px 15px;
     border: none;
+    background-color: #ddd;
+    cursor: pointer;
+    transition: 0.3s;
     border-radius: 5px;
 }
 
 .tabs button:hover {
-    background-color: #0056b3;
+    background-color: #bbb;
 }
+
+.tabs button.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
 
 .order-section {
     margin-top: 20px;
