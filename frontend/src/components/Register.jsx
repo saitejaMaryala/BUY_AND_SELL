@@ -15,6 +15,8 @@ function Register() {
         password: '',
     });
 
+    const [confirmpassword,setconfirmpassword] = useState();
+
     const navigate = useNavigate();
 
 
@@ -25,6 +27,11 @@ function Register() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        if(confirmpassword !== formData.password){
+            toast.error("confirm passsword didn't match");
+            return;
+        }
 
         // Validate email for IIIT domain
         const iiitEmailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9._%+-]*iiit\.ac\.in$/;
@@ -97,7 +104,9 @@ function Register() {
                         value={formData.age}
                         onChange={handleChange}
                         required
-                        min="1"
+                        min="1" // Ensures age is greater than 0
+                        onInvalid={(e) => e.target.setCustomValidity("Age must be greater than 0")}
+                        onInput={(e) => e.target.setCustomValidity("")}
                     />
 
                     <label htmlFor="contactNumber">Contact Number</label>
@@ -109,7 +118,11 @@ function Register() {
                         value={formData.contactNumber}
                         onChange={handleChange}
                         required
+                        pattern="\d{10}" // Ensures exactly 10 digits
+                        onInvalid={(e) => e.target.setCustomValidity("Contact number must be exactly 10 digits")}
+                        onInput={(e) => e.target.setCustomValidity("")}
                     />
+
 
                     <label htmlFor="password">Password</label>
                     <input
@@ -121,6 +134,18 @@ function Register() {
                         onChange={handleChange}
                         required
                     />
+
+                    <label htmlFor='confirmpassword'>Confirm Password</label>
+                    <input
+                        type="password"
+                        id="confirmpassword"
+                        name="confirmpassword"
+                        placeholder="*******"
+                        value={confirmpassword}
+                        onChange={(e)=>setconfirmpassword(e.target.value)}
+                        required
+                    />
+
                     <p>
                         Already have an account? <Link to="/login">Login here</Link>
                     </p>

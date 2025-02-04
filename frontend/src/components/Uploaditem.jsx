@@ -70,6 +70,9 @@ const Uploaditem = ({
                         placeholder="Enter Price"
                         value={data.price}
                         onChange={handleChange}
+                        min="1" // Ensures age is greater than 0
+                        onInvalid={(e) => e.target.setCustomValidity("Age must be greater than 0")}
+                        onInput={(e) => e.target.setCustomValidity("")}
                         required
                     />
 
