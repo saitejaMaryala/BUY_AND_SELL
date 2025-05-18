@@ -6,7 +6,7 @@ const OrderHistory = () => {
     const [soldProducts, setSoldProducts] = useState([]);
     const [boughtProducts, setBoughtProducts] = useState([]);
     const [pendingProducts, setPendingProducts] = useState([]);
-    const [activeTab, setActiveTab] = useState("sold"); // State to track active tab
+    const [activeTab, setActiveTab] = useState("pending"); // State to track active tab
 
     axios.defaults.withCredentials = true;
 
@@ -31,14 +31,14 @@ const OrderHistory = () => {
         <div className="order-history-container">
             {/* Tab Buttons */}
             <div className="tabs">
+                <button onClick={() => setActiveTab("pending")} className={activeTab === "pending" ? "active" : ""}>
+                    Pending Items
+                </button>
                 <button onClick={() => setActiveTab("sold")} className={activeTab === "sold" ? "active" : ""}>
                     Sold Items
                 </button>
                 <button onClick={() => setActiveTab("bought")} className={activeTab === "bought" ? "active" : ""}>
                     Bought Items
-                </button>
-                <button onClick={() => setActiveTab("pending")} className={activeTab === "pending" ? "active" : ""}>
-                    Pending Items
                 </button>
             </div>
 
@@ -48,8 +48,11 @@ const OrderHistory = () => {
                     <h2>Sold Products</h2>
                     {soldProducts.length > 0 ? (
                         <ul className="order-list">
-                            {soldProducts.map((product,index) => (
+                            {soldProducts.map((product, index) => (
                                 <li className="order-item" key={index}>
+                                    <div className="product-detail">
+                                        <span>Transaction ID:</span> {product.TransactionId}
+                                    </div>
                                     <div className="product-detail">
                                         <span>Product Name:</span> {product.prodId.name}
                                     </div>
@@ -77,8 +80,11 @@ const OrderHistory = () => {
                     <h2>Bought Products</h2>
                     {boughtProducts.length > 0 ? (
                         <ul className="order-list">
-                            {boughtProducts.map((product,index) => (
+                            {boughtProducts.map((product, index) => (
                                 <li className="order-item" key={index}>
+                                    <div className="product-detail">
+                                        <span>Transaction ID:</span> {product.TransactionId}
+                                    </div>
                                     <div className="product-detail">
                                         <span>Product Name:</span> {product.prodId.name}
                                     </div>
@@ -106,7 +112,7 @@ const OrderHistory = () => {
                     <h2>Pending Products</h2>
                     {pendingProducts.length > 0 ? (
                         <ul className="order-list">
-                            {pendingProducts.map((product,index) => (
+                            {pendingProducts.map((product, index) => (
                                 <li className="order-item" key={index}>
                                     <div className="product-detail">
                                         <span>Product Name:</span> {product.prodId.name}

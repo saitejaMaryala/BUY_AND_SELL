@@ -28,15 +28,19 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || ''); // Retrieve token from localStorage
 
   const authcheck = async () => {
-    await axios
-      .get('/')
-      .then((response) => {
+    try {
+      const response = await axios.get('/');
+      if (response.status === 200) {
         setAuth(true);
-      })
-      .catch((err) => {
-        console.error(err);
+        console.log("set auth value true in app.jsx", response.status);
+      } else {
         setAuth(false);
-      });
+        console.log("set auth value false in app.jsx");
+      }
+    } catch (err) {
+      console.error("Error in authcheck:", err.response?.status || err.message);
+      setAuth(false);
+    }
   };
   useEffect(() => {
     if (!token) {

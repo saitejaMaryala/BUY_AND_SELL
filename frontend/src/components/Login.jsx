@@ -6,7 +6,7 @@ import { Setauth, Settoken } from "../App";
 import {toast} from "react-toastify";
 import ReCAPTCHA from "react-google-recaptcha";
 
-// 6LfyscQqAAAAAC1QI3ooKBcSKKkMKr8gRTpAWBpD
+// 6LfyscQqAAAAAC1QI3ooKBcSKKkMKr8gRTpAWBpD 
 
 
 function Login() {
@@ -37,6 +37,7 @@ function Login() {
                     setToken('token');
                     localStorage.setItem('token', result.data.token);
                     setauth(true);
+                    console.log("set auth value true in login.jsx")
                     toast.success("Login success!")
                     navigate('/profilepage');
                 } else {
@@ -77,9 +78,9 @@ function Login() {
                         Don't have an account? <Link to="/register">Register here</Link>
                     </p>
                     <ReCAPTCHA
+                    className="g-recaptcha"
                     sitekey="6LfyscQqAAAAAC1QI3ooKBcSKKkMKr8gRTpAWBpD"
                     onChange={onSuccess}
-                    className="g-recaptcha"
                     />
                     <button type="submit" disabled = {!recapval}> submit </button>
                 </form>

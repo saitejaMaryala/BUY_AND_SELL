@@ -52,7 +52,7 @@ function authenticateToken(req, res, next) {
     jwt.verify(token, "123abc", (err, user) => {
         if (err) {
             console.log("JWT Error:", err.message);
-            return res.status(403).json({ message: "Invalid or expired token" }); f
+            return res.status(403).json({ message: "Invalid or expired token" });
         }
         req.username = user.name;
         req.id = user._id;
@@ -61,6 +61,10 @@ function authenticateToken(req, res, next) {
 }
 
 app.get("/", authenticateToken, (req, res) => {
+    if (!req.username) { // If authentication failed, return an error
+        return res.status(403).json({ message: "Authentication failed" });
+    }
+    console.log("Username: verification done", req.username);
     return res.json({ status: 200, name: req.username });
 });
 
@@ -89,7 +93,7 @@ app.post("/login", async (req, res) => {
                     name: name,
                     email: email
                 }
-                const token = jwt.sign(tokendata, "123abc", { expiresIn: "1d" });
+                const token = jwt.sign(tokendata, "123abc", { expiresIn: "1h" });
                 res.cookie('token', token, { httpOnly: true, secure: true, sameSite: 'Strict' });
                 return res.status(200).json({ message: "success", token });
             } else {
@@ -128,23 +132,25 @@ app.get("/logout", async (req, res) => {
     return res.json({ status: 200 });
 })
 
-app.post("/profilepage", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    const token = req.cookies.token || (authHeader && authHeader.split(" ")[1]); // Fetch the token from cookies or Authorization header
+app.post("/profilepage", authenticateToken,async (req, res) => {
+    // const authHeader = req.headers.authorization;
+    // const token = req.cookies.token || (authHeader && authHeader.split(" ")[1]); // Fetch the token from cookies or Authorization header
 
-    if (!token) {
-        return res.status(401).json({ message: "No token found!" });
-    }
+    // if (!token) {
+    //     return res.status(401).json({ message: "No token found!" });
+    // }
 
-    let email = "";
-    try {
-        // Verify the JWT
-        const user = jwt.verify(token, "123abc");
-        _id = user._id;
-    } catch (err) {
-        console.error("JWT Error:", err.message);
-        return res.status(403).json({ message: "Invalid or expired token" });
-    }
+    // let email = "";
+    // try {
+    //     // Verify the JWT
+    //     const user = jwt.verify(token, "123abc");
+    //     _id = user._id;
+    // } catch (err) {
+    //     console.error("JWT Error:", err.message);
+    //     return res.status(403).json({ message: "Invalid or expired token" });
+    // }
+
+    const _id = req.id;
 
     try {
         // Fetch the user details from the database
@@ -553,6 +559,7 @@ app.post("/completedeliver", authenticateToken, async (req, res) => {
 
         // Update the delivery status to "Done"
         pendingOrder.Delivered = "Done";
+        pendingOrder.TransactionId = pendingOrder._id; 
         await pendingOrder.save();
 
         res.status(200).json({

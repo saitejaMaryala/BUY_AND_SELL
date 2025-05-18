@@ -6,7 +6,8 @@ const orderHistorySchema = mongoose.Schema(
         buyerId: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
         sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
         otp:String,
-        Delivered:String
+        Delivered:String,
+        TransactionId: String,
     },
     {
         timestamps: true, // Automatically adds createdAt and updatedAt fields
